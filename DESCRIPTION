@@ -1,0 +1,31 @@
+Package: STAT302project3
+Title: STAT302 Project3 Package
+Version: 0.1.0
+Authors@R: 
+    person(given = "Weiqiao",
+           family = "Shen",
+           role = c("aut", "cre"),
+           email = "shenw9@uw.edu")
+Description: This is a assignment for STAT302 at UW.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.1
+Imports: 
+    class,
+    magrittr,
+    randomForest,
+    tibble,
+    stats,
+    tidyr,
+    readr,
+    dplyr
+Suggests: 
+    testthat (>= 3.0.0),
+    knitr,
+    rmarkdown
+Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)
+VignetteBuilder: knitr

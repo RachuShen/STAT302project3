@@ -1,0 +1,155 @@
+---
+title: "Project 3: STAT302project3 Tutorial"
+author: "Weiqiao Shen"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{STAT302project3 Tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(STAT302project3)
+```
+
+### A brief introduction
+This package includes methods `my_t.test`, `my_lm`, `my_knn_cv` and `my_rf_cv`. They are functions for either inference or prediction.\
+You can install and load STAT302project3 package using the following lines:
+
+```{r, eval = FALSE}
+devtools::install_github("RachuShen/STAT302project3", build_vignette = TRUE, build_opts = c())
+library(STAT302project3)
+```
+```{r, echo = FALSE, include = FALSE}
+library(STAT302project3)
+```
+
+### A tutorial for my_t.test
+In this section, we would use `lifeExp` data in my_gapminder and pick 0.05 as the significance level in each case.
+In the first case, We assume the null hypothesis and alternative hypothesis are: 
+$$
+H_0: \mu = 60,
+$$
+$$
+H_a: \mu \neq 60.
+$$
+
+In the result, we can see the p-value is 0.09. Therefore, the probability of observing a more extreme sample than the given sample is 0.09. Since 0.09 is greater than $\alpha$ (0.05), we fail to reject the null hypothesis. 
+
+```{r}
+my_t.test(x = my_gapminder$lifeExp, mu = 60)
+```
+
+In the Second case, the null hypothesis and alternative hypothesis are: 
+
+$$
+H_0: \mu = 60,
+$$
+$$
+H_a: \mu < 60.
+$$
+In this case, the p-value of observing a more extreme sample than the given sample is only 0.04, which is less than $\alpha$. Therefore, we'll reject the null hypothesis because it is very unlikely to observe such an extreme sample.
+```{r}
+my_t.test(x = my_gapminder$lifeExp, alternative = "less", mu = 60)
+```
+
+In the last case, we have:
+
+$$
+H_0: \mu = 60,
+$$
+$$
+H_a: \mu > 60.
+$$
+Similarly to case 1, we get the p-value greater than $\alpha$, and thus we conclude that we fail to reject the null hypothesis.
+
+```{r}
+my_t.test(x = my_gapminder$lifeExp, alternative = "greater", mu = 60)
+```
+
+### A tutorial for my_lm
+In this section, we also use `lifeExp` in my_gapminder for demonstration. We'd fit a regression using `lifeExp` as response variable and `gdpPercap` and continent as explanatory variables.
+In `Estimate` column, we see a positive coefficients for numeric variable `gdpPercap`, and therefore we say higher values of GDP may lead to higher life expectancy at birth. For factor variable `continent`, we find that different continents have different coefficients. Thus, we expect a correlation between continent and life expectancy at birth. 
+
+```{r}
+my_lm(lifeExp ~ gdpPercap + continent, my_gapminder)
+```
+
+In the two sided hypothesis test associated with the `gdpPercap` coefficient, we assume:
+$$
+H_0: coeffcient = 0,
+$$
+$$
+H_a: coefficient \neq 0.
+$$
+Our purpose is to test whether there is a correlation between `gdpPercap` and `lifeExp` (coefficient $\neq$ 0). In the result, the p-value is `r my_lm(lifeExp ~ gdpPercap + continent, my_gapminder)[2, 4]`, a super small value. We choose 0.05 as the significance level and therefore reject the null hypothesis. In other words, we reject the null hypothesis that there is no correlation between `gdpPercap` and `lifeExp`.
+We use ggplot to plot the fitted value (red) versus actual value (black). It is obvious that black points (actual value) cluster together while red points (fitted value) forms a straight line. The reason why our fit is a straight line is that our model is based on linear regression, and after comparing the actual with the fitted, we conclude that the correlation between `gdpPercap` and `lifeExp` is not linear.
+```{r}
+library(ggplot2)
+fitted <- lm(lifeExp ~ gdpPercap + continent, my_gapminder)
+my_gapminder %>%
+  ggplot(aes(x = gdpPercap, y = lifeExp)) +
+  geom_point() +
+  geom_point(data = fitted, aes(x = gdpPercap, y = predict(fitted)), 
+             color = "red") +
+  theme_bw(base_size = 14)
+```
+
+### A tutorial for my_knn_cv
+Cross validation splits data sample into `k_cv` groups and each group will be used as test data once while the rest is train data. It helps us better use our data, and it gives us much more information about our algorithm performance. In this section, we will use covariates `bill_length_mm`, `bill_depth_mm`, `flipper_length_mm`, and `body_mass_g` to predict `species` in `my_penguins` with 5-fold (`k_cv = 5`) cross validation and the number of neighbors iterating from 1 to 10.  According to the result, we would choose model with `k_nn` = 1 because it has the lowest `CV misclassification error` and the lowest `training set error`. However, we would choose the model with `k_nn` = 5 in real world practice to prevent high variance or high bias.
+```{r}
+train <- my_penguins %>% 
+  tidyr::drop_na() %>%
+  dplyr::select(bill_length_mm, bill_depth_mm, flipper_length_mm, body_mass_g)
+cl <- my_penguins %>%
+  tidyr::drop_na() %>%
+  dplyr::select(species)
+error <- matrix(NA, nrow = 10, ncol = 2)
+for (i in 1:10){
+  error[i, 1] <- my_knn_cv(train, cl, i, 5)$cv_err
+  error[i, 2] <- mean(class::knn(train, train, cl$species, i, F) != as.matrix(cl))
+}
+colnames(error) <- c("CV misclassification error", "training set error")
+error
+```
+
+### A tutorial for my_rf_cv
+In this section, we'll predict `body_mass_g` using covariates `bill_length_mm`, `bill_depth_mm`, and `flipper_length_mm` with `k` in `c(2, 5, 10)`. 
+```{r}
+mse <- matrix(NA, nrow = 90, ncol = 2)
+for (k in c(2, 5, 10)){
+  for (i in 1:30) {
+    mse[k %/% 5 * 30 + i, 1] <- k
+    mse[k %/% 5 * 30 + i, 2] <- my_rf_cv(k)
+  }
+}
+colnames(mse) <- c("k", "mse")
+```
+
+We plot performance of each model and create a table to display the average CV estimate and the standard deviation of the CV estimates across k. From the plot and the table, we find the model with `k` = 10 has the lowest standard deviation and lowest mean. In contrast, `k` = 2 has the highest $\mu$ and $\sigma$. Therefore, we say models with `k` = 10 have the best performance in this case. The reason might be that in 10-fold cross validation, we have more data (9/10 of the entire data) fed to train the model and the relatively large size of data helps us to get rid of high variance and high bias.
+
+```{r}
+data.frame(mse) %>%
+  ggplot(aes(group = k, y = mse, ymax = 142000, ymin = 111000)) +
+  geom_boxplot(aes(x = k, color = k)) +
+  xlab("k") +
+  theme_bw(base_size = 14)
+tbl <- matrix(NA, nrow = 3, ncol = 2)
+rownames(tbl) <- c("k = 2", "k = 5", "k = 10")
+colnames(tbl) <- c("mean", "sd")
+tbl[1, 1] <- mean(mse[1:30, 2])
+tbl[1, 2] <- sd(mse[1:30, 2])
+tbl[2, 1] <- mean(mse[31:60, 2])
+tbl[2, 2] <- sd(mse[31:60, 2])
+tbl[3, 1] <- mean(mse[61:90, 2])
+tbl[3, 2] <- sd(mse[61:90, 2])
+tbl
+```
+
