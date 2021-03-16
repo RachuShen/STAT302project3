@@ -20,7 +20,8 @@ Imports:
     stats,
     tidyr,
     readr,
-    dplyr
+    dplyr,
+    ggplot2
 Suggests: 
     testthat (>= 3.0.0),
     knitr,
