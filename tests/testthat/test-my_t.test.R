@@ -5,8 +5,9 @@ test_that("unacceptable `alternative` throws error", {
   expect_error(my_t.test(x, alternative = "abc", mu = 0))
 })
 
-test_that("non-numeric input throws warning and errors", {
+test_that("non-numeric input throws errors", {
   expect_error(my_t.test("x", alternative = "two.sided", mu = 0))
+  expect_error(my_t.test(sample, alternative = "two.sided", mu = "0"))
 })
 
 test_that("my_t.test works mathematically", {
