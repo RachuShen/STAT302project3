@@ -5,7 +5,7 @@
 [![R-CMD-check](https://github.com/RachuShen/STAT302project3/workflows/R-CMD-check/badge.svg)](https://github.com/RachuShen/STAT302project3/actions)
 <!-- badges: end -->
 
-The goal of STAT302project3 is to ...
+The goal of STAT302project3 is to practice package building。
 
 ## Installation
 

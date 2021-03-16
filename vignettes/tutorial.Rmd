@@ -8,6 +8,10 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+```{r, echo = FALSE, include = FALSE}
+knitr::opts_chunk$set(fig.width=6, fig.height=4) 
+```
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -15,19 +19,17 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
-library(STAT302project3)
-```
-
 ### A brief introduction
 This package includes methods `my_t.test`, `my_lm`, `my_knn_cv` and `my_rf_cv`. They are functions for either inference or prediction.\
 You can install and load STAT302project3 package using the following lines:
 
 ```{r, eval = FALSE}
-devtools::install_github("RachuShen/STAT302project3", build_vignette = TRUE, build_opts = c())
-library(STAT302project3)
+devtools::install_github("RachuShen/STAT302project3")
 ```
-```{r, echo = FALSE, include = FALSE}
+
+Before starting our tutorial, we first load `STAT302project3` into our library.
+
+```{r, message = FALSE}
 library(STAT302project3)
 ```
 
