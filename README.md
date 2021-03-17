@@ -3,6 +3,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/RachuShen/STAT302project3/workflows/R-CMD-check/badge.svg)](https://github.com/RachuShen/STAT302project3/actions)
+[![codecov](https://codecov.io/gh/RachuShen/STAT302project3/branch/master/graph/badge.svg?token=I75LIXXDM8)](https://codecov.io/gh/RachuShen/STAT302project3)
 <!-- badges: end -->
 
 The goal of STAT302project3 is to practice package building。
